@@ -30,6 +30,7 @@ BEGIN_MESSAGE_MAP(CopenGlabView, CView)
 	ON_WM_ERASEBKGND()
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 // CopenGlabView construction/destruction
@@ -154,4 +155,30 @@ void CopenGlabView::OnSize(UINT nType, int cx, int cy)
 	CDC* pDC = GetDC();
 	renderer.Reshape(pDC, cx, cy);
 	ReleaseDC(pDC);
+}
+
+
+void CopenGlabView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+
+	switch (nChar)
+	{
+	case VK_UP:
+		renderer.ChangeViewAngleX(5.0);
+		break;
+	case VK_DOWN:
+		renderer.ChangeViewAngleX(-5.0);
+		break;
+	case VK_LEFT:
+		renderer.ChangeViewAngleY(5.0);
+		break;
+	case VK_RIGHT:
+		renderer.ChangeViewAngleY(-5.0);
+		break;
+	}
+
+	Invalidate();
 }
