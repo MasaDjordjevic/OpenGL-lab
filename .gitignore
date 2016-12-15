@@ -7,3 +7,5 @@ openGlab/Debug/
 openGlab/Release/
 .opendb
 *.opendb
+
+.vs/

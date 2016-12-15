@@ -7,10 +7,14 @@
 
 Renderer::Renderer()
 {
-	angleX = 0.0;
-	angleY = 0;
-	angleZ = 0.0;
+	angleX = 35;
+	angleY = -45;
+	angleZ = 0;
+	zoom = 30;
 
+	angleLower = 25;
+	angleUpper = -15;
+	angleHead = 25;
 }
 
 
@@ -93,19 +97,21 @@ void Renderer::DrawScene(CDC * pDC)
 	//------------------------
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	gluLookAt(20.0, 15.0, 20.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0, 0, zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 	glRotatef(angleX, 1.0, 0.0, 0.0);
 	glRotatef(angleY, 0.0, 1.0, 0.0);
 	glRotatef(angleZ, 0.0, 0.0, 1.0);
 
-	//this->DrawAxes(10);	
+	//this->DrawAxes(10);		
 	//this->drawRainbowCube(10.0, 10.0, 20.0);
 	//this->DrawGrid(50, 5);
-
-	this->DrawWalls(10);
-	this->DrawTable(4, 0, 3, 5, 4, 3, 0.7, 0.7, 0.2, 1, 0.2);
-
+	
+	this->DrawWalls(20);
+	this->DrawTable(5, 0, 4, 5, 4, 3, 0.7, 0.7, 0.2, 1, 0.2);
+	//ovde su mi koodinate relativne a na kraju svake f-je imam popMatirx()????
+	this->DrawLamp(-1, 0, 0.5, angleLower, angleUpper, angleHead);
+	
 	glFlush();
 	//-----------------------------
 	SwapBuffers(pDC->m_hDC);
@@ -269,9 +275,9 @@ void Renderer::DrawWalls(double size)
 
 void Renderer::DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topHeight, double bottomHeight, double legSize)
 {
-	double top[3] = { 0.6, 0.4, 0.4 };
-	double bottom[3] = { 0.4, 0.1, 0.1 };
-	double leg[3] = { 0.3, 0.6, 0.3 };
+	double top[3] = { 0.824, 0.412, 0.118 };
+	double bottom[3] = { 0.48, 0.22, 0.12 };
+	double leg[3] = { 0.604, 0.804, 0.196 };
 
 	
 	glTranslated(x, y + height - topHeight/2, z);
@@ -293,8 +299,82 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	DrawCube(legSize, legHeight, legSize, leg);
 
 	glTranslated(-(width - offsetW), 0, 0);
-	DrawCube(legSize, legHeight, legSize, leg);
+	DrawCube(legSize, legHeight, legSize, leg);	
+
+	glPopMatrix();
+}
+
+void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double upperAngle, double headAngle)
+{
+	double lampColor[3] = { 0.0, 0.0, 1.0 };
+	double headColor[3] = { 0.0, 1.0, 0.0 };
+
+	double barWidth = 0.1;
+	double barHeight = 2;
+
+	glPushMatrix();
+	glTranslated(x, y, z);
+	glColor3dv(lampColor);
+
+	double xPlane[4] = { 0,1,0,0 };
+	DrawHemisphere(xPlane, 0.5);
+
+	//lower
+	glRotatef(lowerAngle, 0.0, 0.0, 1.0);
+	glTranslatef(0, barHeight / 2, 0);
+	DrawCube(barWidth, barHeight, barWidth, lampColor);
+
+	//ball
+	glColor3dv(headColor);
+	glTranslatef(0.0, barHeight / 2.0, 0.0);
+	glutSolidSphere(0.15, 10, 10);
+
+	//upper
+	glColor3dv(lampColor);
+	glRotatef(upperAngle - 1.5 * lowerAngle, 0, 0, 1);
+	glTranslatef(0.0, barHeight / 2.0, 0.0);
+	DrawCube(barWidth, barHeight, barWidth, lampColor);
+
+	//head
+	glRotatef(headAngle, 0, 1, 0);
+	glTranslatef(0, barHeight / 2, 0);
+	DrawLampHead();
+
+
+	glPopMatrix();
+}
+
+void Renderer::DrawHemisphere(double* clipPlane, double radius)
+{
+	glEnable(GL_CLIP_PLANE0);
+	glClipPlane(GL_CLIP_PLANE0, clipPlane);
+
+	glutSolidSphere(radius, 10, 10);
+	glDisable(GL_CLIP_PLANE0);
+}
+
+void Renderer::DrawLampHead()
+{
+	float headRadius = 0.5, headWidth = 0.8, headHeight = 0.3;
+	double headColor[3] = { 0.0, 1.0, 0.0 };
+	glColor3dv(headColor);
+
+	glPushMatrix();
+
+	//small sphere
+	glTranslatef(-headWidth / 2.0, 0.0, 0.0);
+	double clip[4] = { -1.0, 0.0, 0.0, 0 };
+	double radius = headHeight / 2 * sqrt(2);
+	DrawHemisphere(clip, radius);
 	
+	// box
+	glTranslatef(radius*0.8 + headHeight/2, 0.0, 0.0);
+	DrawCube(headWidth, headHeight, headHeight, headColor);
+
+	// large sphere
+	glTranslatef(headWidth * 0.8, 0.0, 0.0);
+	double clipPlane[4] = { -1.0, 0.0, 0.0, headRadius / 2.0 };
+	DrawHemisphere(clipPlane, headRadius);
 
 	glPopMatrix();
 }

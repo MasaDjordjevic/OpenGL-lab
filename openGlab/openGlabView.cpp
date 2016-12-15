@@ -163,20 +163,44 @@ void CopenGlabView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// TODO: Add your message handler code here and/or call default
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
-
+	double step = 5;
 	switch (nChar)
 	{
 	case VK_UP:
-		renderer.ChangeViewAngleX(5.0);
+		renderer.ChangeViewAngleX(step);
 		break;
 	case VK_DOWN:
-		renderer.ChangeViewAngleX(-5.0);
+		renderer.ChangeViewAngleX(-step);
 		break;
 	case VK_LEFT:
-		renderer.ChangeViewAngleY(5.0);
+		renderer.ChangeViewAngleY(step);
 		break;
 	case VK_RIGHT:
-		renderer.ChangeViewAngleY(-5.0);
+		renderer.ChangeViewAngleY(-step);
+		break;
+	case VK_ADD:
+		renderer.ChangeViewZoom(-step);
+		break;
+	case VK_SUBTRACT:
+		renderer.ChangeViewZoom(step);
+		break;
+	case 'Q':
+		renderer.ChangeLampLowerAngle(-step);
+		break;		   
+	case 'A':		   
+		renderer.ChangeLampLowerAngle(step);
+		break;		   
+	case 'W':		   
+		renderer.ChangeLampUpperAngle(step);
+		break;		   
+	case 'S':		   
+		renderer.ChangeLampUpperAngle(-step);
+		break;		   
+	case 'E':		   
+		renderer.ChangeLampHeadAngle(step);
+		break;		   
+	case 'D':		   
+		renderer.ChangeLampHeadAngle(-step);
 		break;
 	}
 
