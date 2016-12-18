@@ -54,6 +54,11 @@ void CGLMaterial::setDiffuse(float r, float g, float b, float a) {
 	this->vDiffuse[3] = a;
 }
 
+void CGLMaterial::setAmbientAndDiffuse(float r, float g, float b, float a) {
+	this->setAmbient(r, g, b, a);
+	this->setDiffuse(r, g, b, a);
+}
+
 void CGLMaterial::setSpecular(float r, float g, float b, float a) {
 	this->vSpecular[0] = r;
 	this->vSpecular[1] = g;

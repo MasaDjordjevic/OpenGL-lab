@@ -8,17 +8,17 @@
 #define rgb(r, g, b) r/255.0, g/255.0, b/255.0
 
 Renderer::Renderer() {
-	angleX = 35;
+	angleX = 25;
 	angleY = -45;
 	angleZ = 0;
-	zoom = 30;
+	zoom = 20;
 
-	angleLower = 25;
-	angleUpper = -15;
-	angleHead = 25;
+	angleLower = 45;
+	angleUpper = -25;
+	angleHead = 15;
 
 	this->eyePosition[0] = 0.0;
-	this->eyePosition[1] = 0.0;
+	this->eyePosition[1] = .5;
 }
 
 
@@ -101,11 +101,9 @@ void Renderer::DrawScene(CDC * pDC) {
 	glRotatef(angleY, 0.0, 1.0, 0.0);
 	glRotatef(angleZ, 0.0, 0.0, 1.0);
 
-	// Light stuff
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	// Sijalica gore
 	float lightPosition[] = { 10.0, 30.0, 10.0, 1.0 };
-	float spotDirection[] = { 0.0, -1.0, 0.0 };
+	float spotDirection[] = { 0, -1.0, 0 };
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDirection);
 
@@ -211,11 +209,9 @@ void Renderer::DrawAxes(double len) {
 	glEnd();
 }
 
-void Renderer::DrawCube(double a, double b, double c, double *color, int numberOfTiles) {
+void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 	glBegin(GL_QUADS);
 	{
-		glColor3d(rgb(color[0], color[1], color[2]));
-
 		// front
 		glNormal3d(0.0, 0.0, 1.0);
 		glVertex3d(-a / 2, -b / 2, +c / 2);
@@ -275,8 +271,7 @@ void Renderer::DrawCube(double a, double b, double c, double *color, int numberO
 	glEnd();
 }
 
-void Renderer::DrawWall(double size, double* color, int numberOfTiles) {
-	glColor3dv(color);
+void Renderer::DrawWall(double size, int numberOfTiles) {
 	if (numberOfTiles == 0) {
 		glBegin(GL_QUADS);
 		{
@@ -306,53 +301,48 @@ void Renderer::DrawWall(double size, double* color, int numberOfTiles) {
 }
 
 void Renderer::DrawWalls(double size) {
-	double wallColor[3] = { 0.8, 0.8, 0.8 };
-
 	this->wallMaterial.select();
+	this->DrawWall(size, 200);
 
-	this->DrawWall(size, wallColor, 400);
+	glFrontFace(GL_CW);
 
 	glPushMatrix();
 	glRotatef(-90.0, 0.0, 1.0, 0.0);
-	this->DrawWall(size, wallColor, 400);
+	this->DrawWall(size, 200);
 	glPopMatrix();
 
 	glPushMatrix();
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	this->DrawWall(size, wallColor, 400);
+	this->DrawWall(size, 200);
 	glPopMatrix();
+	
+	glFrontFace(GL_CCW);
 }
 
 void Renderer::DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topHeight, double bottomHeight, double legSize) {
-	double top[3] = { rgb(69, 90, 100) };
-	double bottom[3] = { rgb(255, 193, 7) };
-	double leg[3] = { rgb(121, 85, 72) };
 
-	this->woodMaterial.select();
-
-	glTranslated(x, y + height - topHeight / 2, z);
 	// top
-	DrawCube(width, topHeight, depth, top, 200);
+	glTranslated(x, y + height - topHeight / 2, z);
+	this->woodMaterial.select();
+	DrawCube(width, topHeight, depth, 200);
+
+	// bottom
 	glPushMatrix();
 	glTranslated(0, -topHeight / 2 - bottomHeight / 2, 0);
-	// bottom
-	DrawCube(width - offsetW, bottomHeight, depth - offsetD, bottom);
+	DrawCube(width - offsetW, bottomHeight, depth - offsetD);
 	glPopMatrix();
 
-	double legHeight = height - topHeight;
 	// legs
+	double legHeight = height - topHeight;
 	glPushMatrix();
 	glTranslated(-(width - offsetW) / 2, -topHeight / 2 - legHeight / 2, -(depth - offsetD) / 2);
-	DrawCube(legSize, legHeight, legSize, leg);
-
+	DrawCube(legSize, legHeight, legSize);
 	glTranslated(width - offsetW, 0, 0);
-	DrawCube(legSize, legHeight, legSize, leg);
-
+	DrawCube(legSize, legHeight, legSize);
 	glTranslated(0, 0, depth - offsetD);
-	DrawCube(legSize, legHeight, legSize, leg);
-
+	DrawCube(legSize, legHeight, legSize);
 	glTranslated(-(width - offsetW), 0, 0);
-	DrawCube(legSize, legHeight, legSize, leg);
+	DrawCube(legSize, legHeight, legSize);
 
 	glPopMatrix();
 }
@@ -376,7 +366,7 @@ void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double 
 	//lower
 	glRotatef(lowerAngle, 0.0, 0.0, 1.0);
 	glTranslatef(0, barHeight / 2, 0);
-	DrawCube(barWidth, barHeight, barWidth, lampColor);
+	DrawCube(barWidth, barHeight, barWidth);
 
 	//joint
 	glColor3dv(headColor);
@@ -387,7 +377,7 @@ void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double 
 	glColor3dv(lampColor);
 	glRotatef(upperAngle - 1.5 * lowerAngle, 0, 0, 1);
 	glTranslatef(0.0, barHeight / 2.0, 0.0);
-	DrawCube(barWidth, barHeight, barWidth, lampColor);
+	DrawCube(barWidth, barHeight, barWidth);
 
 	//head
 	glRotatef(headAngle, 0, 1, 0);
@@ -406,8 +396,6 @@ void Renderer::DrawHemisphere(double* clipPlane, double radius) {
 
 void Renderer::DrawLampHead() {
 	float headRadius = 0.5, headWidth = 0.8, headHeight = 0.3;
-	double headColor[3] = { rgb(33, 150, 243) };
-	glColor3dv(headColor);
 
 	glPushMatrix();
 
@@ -419,7 +407,7 @@ void Renderer::DrawLampHead() {
 
 	// box
 	glTranslatef(radius*0.8 + headHeight / 2, 0.0, 0.0);
-	DrawCube(headWidth, headHeight, headHeight, headColor);
+	DrawCube(headWidth, headHeight, headHeight);
 
 	// large sphere
 	glTranslatef(headWidth * 0.8, 0.0, 0.0);
@@ -429,31 +417,25 @@ void Renderer::DrawLampHead() {
 	this->bulbMaterial.select();
 	glutSolidSphere(.2, 20, 20);
 
-	float bulbLightAmbient[] = { rgb(255,249,196), 1.0 };
-	float bulbLightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	float bulbLightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+	// pozicija sijalice
 	float bulbLightPosition[] = { 0.0, 0.0, 0.0 };
 	float bulbLightDirection[] = { 1.0, 0.0, 0.0 };
-
-	glLightfv(GL_LIGHT2, GL_AMBIENT, bulbLightAmbient);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, bulbLightDiffuse);
-	glLightfv(GL_LIGHT2, GL_SPECULAR, bulbLightSpecular);
-
 	glLightfv(GL_LIGHT2, GL_POSITION, bulbLightPosition);
 	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, bulbLightDirection);
-
-	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 45.0);
-	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 2.0);
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
-	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, .25);
-
-	glEnable(GL_LIGHT2);
 
 	glPopMatrix();
 }
 
 void Renderer::prepareLighting() {
-	float lightAmbient[] = { .1, .2, .2, 1.0 };
+	// Global lighting
+	GLfloat lightModelAmbient[] = { .2, .2, .2, 1.0 };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+
+
+	// Nevidljiva sijalica
+	float lightAmbient[] = { .2, .2, .2, 1.0 };
 	float lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	float lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
 
@@ -466,20 +448,35 @@ void Renderer::prepareLighting() {
 	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, .5);
 
 	// Usmeravanje izvora
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 90.0);
 	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 7.0);
+
+	
+	// Sijalica u lampi
+	float bulbLightAmbient[] = { rgb(255,249,196), 1.0 };
+	float bulbLightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	float bulbLightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+
+	glLightfv(GL_LIGHT2, GL_AMBIENT, bulbLightAmbient);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, bulbLightDiffuse);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, bulbLightSpecular);
+
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 2.0);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, .25);
 
 	// Aktiviranje
 	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
 	glEnable(GL_LIGHTING);
 }
 
 void Renderer::prepareMaterials() {
-	this->wallMaterial.setAmbient(.3, .2, .1, 1.0);
-	this->wallMaterial.setShininess(.03);
+	this->wallMaterial.setAmbientAndDiffuse(rgb(207, 216, 220), 1.0);
 
-	this->woodMaterial.setAmbient(rgb(244, 81, 30), 1);
-	this->woodMaterial.setDiffuse(rgb(121, 85, 72), 1);
+	this->woodMaterial.setAmbient(rgb(244, 81, 30), 1.0);
+	this->woodMaterial.setDiffuse(rgb(121, 85, 72), 1.0);
 
 	this->lampMaterial.setAmbient(rgb(211, 47, 47), 1.0);
 	this->lampMaterial.setDiffuse(rgb(229, 57, 53), 1.0);
