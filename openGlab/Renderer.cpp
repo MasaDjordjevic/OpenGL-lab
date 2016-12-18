@@ -281,10 +281,8 @@ void Renderer::DrawWalls(double size) {
 
 	this->wallMaterial.select();
 
-	glFrontFace(GL_CW);
 	this->DrawWall(size, rightWallColor);
 
-	glFrontFace(GL_CCW);
 	glPushMatrix();
 	glRotatef(-90.0, 0.0, 1.0, 0.0);
 	this->DrawWall(size, leftWallColor);
@@ -364,7 +362,6 @@ void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double 
 	glTranslatef(0, barHeight / 2, 0);
 	DrawLampHead();
 
-
 	glPopMatrix();
 }
 
@@ -397,6 +394,29 @@ void Renderer::DrawLampHead() {
 	double clipPlane[4] = { -1.0, 0.0, 0.0, headRadius / 2.0 };
 	DrawHemisphere(clipPlane, headRadius);
 
+	this->bulbMaterial.select();
+	glutSolidSphere(.2, 20, 20);
+
+	float bulbLightAmbient[] = { rgb(255,249,196), 1.0 };
+	float bulbLightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	float bulbLightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+	float bulbLightPosition[] = { 0.0, 0.0, 0.0 };
+	float bulbLightDirection[] = { 1.0, 0.0, 0.0 };
+
+	glLightfv(GL_LIGHT2, GL_AMBIENT, bulbLightAmbient);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, bulbLightDiffuse);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, bulbLightSpecular);
+
+	glLightfv(GL_LIGHT2, GL_POSITION, bulbLightPosition);
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, bulbLightDirection);
+
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 2.0);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, .25);
+
+	glEnable(GL_LIGHT2);
+
 	glPopMatrix();
 }
 
@@ -426,14 +446,14 @@ void Renderer::prepareMaterials() {
 	this->wallMaterial.setAmbient(.3, .2, .1, 1.0);
 	this->wallMaterial.setShininess(.03);
 
-	this->woodMaterial.setAmbient(rgb(121, 85, 72), 1);
+	this->woodMaterial.setAmbient(rgb(244, 81, 30), 1);
 	this->woodMaterial.setDiffuse(rgb(121, 85, 72), 1);
 
-	this->lampMaterial.setAmbient(rgb(211, 47, 47), 1);
-	this->lampMaterial.setDiffuse(rgb(229, 57, 53), 1);
-	this->lampMaterial.setSpecular(rgb(255, 235, 238), 1);
+	this->lampMaterial.setAmbient(rgb(211, 47, 47), 1.0);
+	this->lampMaterial.setDiffuse(rgb(229, 57, 53), 1.0);
+	this->lampMaterial.setSpecular(rgb(255, 235, 238), 1.0);
 
-	this->bulbMaterial.setEmission(1.0, 1.0, 1.0, 1.0);
+	this->bulbMaterial.setEmission(rgb(255, 245, 157), 1.0);
 	this->bulbMaterial.setShininess(128);
 	this->bulbMaterial.setAmbient(.7, .7, .7, 1.0);
 }
