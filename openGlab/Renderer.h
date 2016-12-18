@@ -8,6 +8,7 @@ protected:
 	HGLRC m_hrc;
 	double angleX, angleY, angleZ, zoom;
 	double angleLower, angleUpper, angleHead;
+	double eyePosition[2];
 	CGLMaterial woodMaterial, lampMaterial, wallMaterial, bulbMaterial;
 public:
 	Renderer();
@@ -29,6 +30,8 @@ public:
 	inline void ChangeLampLowerAngle(double diff) { angleLower += diff; }
 	inline void ChangeLampUpperAngle(double diff) { angleUpper += diff; }
 	inline void ChangeLampHeadAngle(double diff) { angleHead += diff; }
+	inline void changeEyePositionX(double diff) { this->eyePosition[0] += diff; }
+	inline void changeEyePositionY(double diff) { this->eyePosition[1] += diff; }
 
 	void DrawCube(double a, double b, double c, double *color);
 	void DrawWall(double size, double * color);

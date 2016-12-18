@@ -16,6 +16,9 @@ Renderer::Renderer() {
 	angleLower = 25;
 	angleUpper = -15;
 	angleHead = 25;
+
+	this->eyePosition[0] = 0.0;
+	this->eyePosition[1] = 0.0;
 }
 
 
@@ -92,7 +95,7 @@ void Renderer::DrawScene(CDC * pDC) {
 	//------------------------
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	gluLookAt(0, 0, zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(this->eyePosition[0], this->eyePosition[1], zoom, this->eyePosition[0], this->eyePosition[1], 1.0, 0.0, 1.0, 0.0);
 
 	glRotatef(angleX, 1.0, 0.0, 0.0);
 	glRotatef(angleY, 0.0, 1.0, 0.0);
@@ -106,13 +109,8 @@ void Renderer::DrawScene(CDC * pDC) {
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDirection);
 
-	this->wallMaterial.select();
 	this->DrawWalls(20);
-
-	this->woodMaterial.select();
 	this->DrawTable(5, 0, 4, 5, 4, 3, 0.7, 0.7, 0.2, 1, 0.2);
-
-	this->lampMaterial.select();
 	this->DrawLamp(-1, 0, 0.5, angleLower, angleUpper, angleHead);
 
 	glFlush();
@@ -281,6 +279,8 @@ void Renderer::DrawWalls(double size) {
 	double rightWallColor[3] = { 0.7, 0.7, 0.7 };
 	double floorColor[3] = { 0.5, 0.5, 0.5 };
 
+	this->wallMaterial.select();
+
 	glFrontFace(GL_CW);
 	this->DrawWall(size, rightWallColor);
 
@@ -300,6 +300,8 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	double top[3] = { rgb(69, 90, 100) };
 	double bottom[3] = { rgb(255, 193, 7) };
 	double leg[3] = { rgb(121, 85, 72) };
+
+	this->woodMaterial.select();
 
 	glTranslated(x, y + height - topHeight / 2, z);
 	DrawCube(width, topHeight, depth, top);
@@ -331,6 +333,8 @@ void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double 
 
 	double barWidth = 0.1;
 	double barHeight = 2;
+
+	this->lampMaterial.select();
 
 	glPushMatrix();
 	glTranslated(x, y, z);
@@ -424,6 +428,10 @@ void Renderer::prepareMaterials() {
 
 	this->woodMaterial.setAmbient(rgb(121, 85, 72), 1);
 	this->woodMaterial.setDiffuse(rgb(121, 85, 72), 1);
+
+	this->lampMaterial.setAmbient(rgb(211, 47, 47), 1);
+	this->lampMaterial.setDiffuse(rgb(229, 57, 53), 1);
+	this->lampMaterial.setSpecular(rgb(255, 235, 238), 1);
 
 	this->bulbMaterial.setEmission(1.0, 1.0, 1.0, 1.0);
 	this->bulbMaterial.setShininess(128);

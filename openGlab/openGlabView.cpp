@@ -186,21 +186,21 @@ void CopenGlabView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	//	break;
 	//case 'Q':
 	//	renderer.ChangeLampLowerAngle(-step);
-	//	break;		   
-	//case 'A':		   
-	//	renderer.ChangeLampLowerAngle(step);
-	//	break;		   
-	//case 'W':		   
-	//	renderer.ChangeLampUpperAngle(step);
-	//	break;		   
-	//case 'S':		   
-	//	renderer.ChangeLampUpperAngle(-step);
-	//	break;		   
+	//	break;
+	case 'A':
+		renderer.changeEyePositionX(-.5);
+		break;
+	case 'D':
+		renderer.changeEyePositionX(+.5);
+		break;
+	case 'W':
+		renderer.changeEyePositionY(+.5);
+		break;
+	case 'S':
+		renderer.changeEyePositionY(-.5);
+		break;		   
 	//case 'E':		   
 	//	renderer.ChangeLampHeadAngle(step);
-	//	break;		   
-	//case 'D':		   
-	//	renderer.ChangeLampHeadAngle(-step);
 	//	break;
 	}
 
