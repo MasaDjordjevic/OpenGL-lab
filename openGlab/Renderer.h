@@ -2,6 +2,7 @@
 #include <gl/GL.h>
 #include <gl\GLU.h>
 #include "GLMaterial.h"
+#include "GLTexture.h"
 
 class Renderer {
 protected:
@@ -10,6 +11,7 @@ protected:
 	double angleLower, angleUpper, angleHead;
 	double eyePosition[2];
 	CGLMaterial woodMaterial, lampMaterial, wallMaterial, bulbMaterial;
+	CGLTexture wallTexture, carpetTexture, woodTexture;
 public:
 	Renderer();
 	~Renderer();
@@ -33,8 +35,8 @@ public:
 	inline void changeEyePositionX(double diff) { this->eyePosition[0] += diff; }
 	inline void changeEyePositionY(double diff) { this->eyePosition[1] += diff; }
 
-	void DrawCube(double a, double b, double c, int numberOfTiles = 0);
-	void DrawWall(double size, int numberOfTiles = 0);
+	void DrawCube(double a, double b, double c, int numberOfTiles = 0, CGLTexture* texture = NULL);
+	void DrawWall(double size, int numberOfTiles = 0, CGLTexture* texture = NULL);
 	void DrawWalls(double size);
 	void DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topDepth, double bottomDepth, double legSize);
 	void DrawLamp(double x, double y, double z, double lowerAngle, double upperAngle, double headAngle);

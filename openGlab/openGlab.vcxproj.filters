@@ -42,6 +42,27 @@
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\GL.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\GLAUX.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\GLU.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\glut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="openGlab.cpp">
@@ -60,6 +81,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -96,6 +96,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>legacy_stdio_definitions.lib</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -189,7 +190,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DImage.h" />
     <ClInclude Include="GLMaterial.h" />
+    <ClInclude Include="GLTexture.h" />
+    <ClInclude Include="GL\GL.H" />
+    <ClInclude Include="GL\GLAUX.H" />
+    <ClInclude Include="GL\GLU.H" />
+    <ClInclude Include="GL\glut.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="openGlab.h" />
     <ClInclude Include="openGlabDoc.h" />
@@ -200,7 +207,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DImage.cpp" />
     <ClCompile Include="GLMaterial.cpp" />
+    <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="openGlab.cpp" />
     <ClCompile Include="openGlabDoc.cpp" />

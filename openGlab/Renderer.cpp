@@ -8,14 +8,14 @@
 #define rgb(r, g, b) r/255.0, g/255.0, b/255.0
 
 Renderer::Renderer() {
-	angleX = 25;
-	angleY = -45;
-	angleZ = 0;
-	zoom = 20;
+	this->angleX = 25;
+	this->angleY = -45;
+	this->angleZ = 0;
+	this->zoom = 20;
 
-	angleLower = 45;
-	angleUpper = -25;
-	angleHead = 15;
+	this->angleLower = 45;
+	this->angleUpper = -25;
+	this->angleHead = 15;
 
 	this->eyePosition[0] = 0.0;
 	this->eyePosition[1] = .5;
@@ -57,6 +57,12 @@ void Renderer::PrepareScene(CDC * pDC) {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glutInitDisplayMode(GLUT_DEPTH);
 	glEnable(GL_DEPTH_TEST);
+
+	CGLTexture::PrepareTexturing(true);
+	this->carpetTexture.loadFromFile(L"ASHSEN512.bmp");
+	this->wallTexture.loadFromFile(L"WALL512.bmp");
+	this->woodTexture.loadFromFile(L"PAT39.bmp");
+
 	prepareLighting();
 	prepareMaterials();
 	//-----------------------------
@@ -209,7 +215,7 @@ void Renderer::DrawAxes(double len) {
 	glEnd();
 }
 
-void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
+void Renderer::DrawCube(double a, double b, double c, int numberOfTiles, CGLTexture* texture) {
 	glBegin(GL_QUADS);
 	{
 		// front
@@ -260,9 +266,13 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 			for (double x = -a / 2; x < a / 2; x += xStep) {
 				for (double z = -c / 2; z < c / 2; z += zStep) {
 					glNormal3d(0.0, 1.0, 0.0);
+					if (texture) glTexCoord2d(0, 0);
 					glVertex3d(x, b / 2, z);
+					if (texture) glTexCoord2d(1, 0);
 					glVertex3d(x + xStep, b / 2, z);
+					if (texture) glTexCoord2d(1, 1);
 					glVertex3d(x + xStep, b / 2, z + zStep);
+					if (texture) glTexCoord2d(0, 1);
 					glVertex3d(x, b / 2, z + zStep);
 				}
 			}
@@ -271,14 +281,18 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 	glEnd();
 }
 
-void Renderer::DrawWall(double size, int numberOfTiles) {
+void Renderer::DrawWall(double size, int numberOfTiles, CGLTexture* texture) {
 	if (numberOfTiles == 0) {
 		glBegin(GL_QUADS);
 		{
 			glNormal3d(0.0, 0.0, 1.0);
+			if (texture) glTexCoord2d(0, 0);
 			glVertex2d(0.0, 0.0);
+			if (texture) glTexCoord2d(1, 0);
 			glVertex2d(size, 0.0);
+			if (texture) glTexCoord2d(1, 1);
 			glVertex2d(size, size);
+			if (texture) glTexCoord2d(0, 1);
 			glVertex2d(0.0, size);
 		}
 		glEnd();
@@ -289,9 +303,13 @@ void Renderer::DrawWall(double size, int numberOfTiles) {
 			for (double x = 0; x < size; x += step) {
 				for (double y = 0; y < size; y += step) {
 					glNormal3d(0.0, 0.0, 1.0);
+					if (texture) glTexCoord2d(0, 0);
 					glVertex2d(x, y);
+					if (texture) glTexCoord2d(1, 0);
 					glVertex2d(x + step, y);
+					if (texture) glTexCoord2d(1, 1);
 					glVertex2d(x + step, y + step);
+					if (texture) glTexCoord2d(0, 1);
 					glVertex2d(x, y + step);
 				}
 			}
@@ -301,22 +319,30 @@ void Renderer::DrawWall(double size, int numberOfTiles) {
 }
 
 void Renderer::DrawWalls(double size) {
+	glEnable(GL_TEXTURE_2D);
+
+	// zid napred
+	this->wallTexture.select();
 	this->wallMaterial.select();
 	this->DrawWall(size, 200);
 
 	glFrontFace(GL_CW);
 
+	// zid levo
 	glPushMatrix();
 	glRotatef(-90.0, 0.0, 1.0, 0.0);
 	this->DrawWall(size, 200);
 	glPopMatrix();
 
+	// zid dole (poznat kao patos)
 	glPushMatrix();
+	this->carpetTexture.select();
 	glRotatef(90.0, 1.0, 0.0, 0.0);
 	this->DrawWall(size, 200);
 	glPopMatrix();
 	
 	glFrontFace(GL_CCW);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void Renderer::DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topHeight, double bottomHeight, double legSize) {
@@ -324,7 +350,10 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	// top
 	glTranslated(x, y + height - topHeight / 2, z);
 	this->woodMaterial.select();
+	glEnable(GL_TEXTURE_2D);
+	this->woodTexture.select();
 	DrawCube(width, topHeight, depth, 200);
+	glDisable(GL_TEXTURE_2D);
 
 	// bottom
 	glPushMatrix();
