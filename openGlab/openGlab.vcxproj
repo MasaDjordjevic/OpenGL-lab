@@ -189,6 +189,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLMaterial.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="openGlab.h" />
     <ClInclude Include="openGlabDoc.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GLMaterial.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="openGlab.cpp" />
     <ClCompile Include="openGlabDoc.cpp" />

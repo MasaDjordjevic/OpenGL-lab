@@ -7,8 +7,7 @@
 
 #define rgb(r, g, b) r/255.0, g/255.0, b/255.0
 
-Renderer::Renderer()
-{
+Renderer::Renderer() {
 	angleX = 35;
 	angleY = -45;
 	angleZ = 0;
@@ -20,12 +19,10 @@ Renderer::Renderer()
 }
 
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
 }
 
-bool Renderer::CreateGLContext(CDC * pDC)
-{
+bool Renderer::CreateGLContext(CDC * pDC) {
 	PIXELFORMATDESCRIPTOR pfd;
 	memset(&pfd, 0, sizeof(PPIXELFORMATDESCRIPTOR));
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -51,35 +48,32 @@ bool Renderer::CreateGLContext(CDC * pDC)
 	return true;
 }
 
-void Renderer::PrepareScene(CDC * pDC)
-{
+void Renderer::PrepareScene(CDC * pDC) {
 	wglMakeCurrent(pDC->m_hDC, m_hrc);
 	//------------------------
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glutInitDisplayMode(GLUT_DEPTH);
 	glEnable(GL_DEPTH_TEST);
-
+	prepareLighting();
+	prepareMaterials();
 	//-----------------------------
 	wglMakeCurrent(NULL, NULL);
 }
 
-void Renderer::DestroyScene(CDC * pDC)
-{
+void Renderer::DestroyScene(CDC * pDC) {
 	wglMakeCurrent(pDC->m_hDC, m_hrc);
 	//------------------------
 
 
 	//-----------------------------
 	wglMakeCurrent(NULL, NULL);
-	if (m_hrc)
-	{
+	if (m_hrc) {
 		wglDeleteContext(m_hrc);
 		m_hrc = NULL;
 	}
 }
 
-void Renderer::Reshape(CDC * pDC, int w, int h)
-{
+void Renderer::Reshape(CDC * pDC, int w, int h) {
 	wglMakeCurrent(pDC->m_hDC, m_hrc);
 	//------------------------
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
@@ -92,8 +86,7 @@ void Renderer::Reshape(CDC * pDC, int w, int h)
 	wglMakeCurrent(NULL, NULL);
 }
 
-void Renderer::DrawScene(CDC * pDC)
-{
+void Renderer::DrawScene(CDC * pDC) {
 
 	wglMakeCurrent(pDC->m_hDC, m_hrc);
 	//------------------------
@@ -105,12 +98,21 @@ void Renderer::DrawScene(CDC * pDC)
 	glRotatef(angleY, 0.0, 1.0, 0.0);
 	glRotatef(angleZ, 0.0, 0.0, 1.0);
 
-	//this->DrawAxes(10);		
-	//this->drawRainbowCube(10.0, 10.0, 20.0);
-	//this->DrawGrid(50, 5);
+	// Light stuff
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	float lightPosition[] = { 10.0, 30.0, 10.0, 1.0 };
+	float spotDirection[] = { 0.0, -1.0, 0.0 };
+	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDirection);
 
+	this->wallMaterial.select();
 	this->DrawWalls(20);
+
+	this->woodMaterial.select();
 	this->DrawTable(5, 0, 4, 5, 4, 3, 0.7, 0.7, 0.2, 1, 0.2);
+
+	this->lampMaterial.select();
 	this->DrawLamp(-1, 0, 0.5, angleLower, angleUpper, angleHead);
 
 	glFlush();
@@ -120,42 +122,52 @@ void Renderer::DrawScene(CDC * pDC)
 
 }
 
-
-
 void Renderer::drawRainbowCube(double a, double b, double c) {
-	glBegin(GL_QUAD_STRIP);
-	{
-		glColor3f(1, .5, .5);
-		glVertex3d(-a / 2, 0, +c / 2);
-		glVertex3d(-a / 2, b, +c / 2);
-
-		glColor3f(.5, 1, .5);
-		glVertex3d(+a / 2, 0, +c / 2);
-		glVertex3d(+a / 2, b, +c / 2);
-
-		glColor3f(.5, .5, 1);
-		glVertex3d(+a / 2, 0, -c / 2);
-		glVertex3d(+a / 2, b, -c / 2);
-
-		glColor3f(.5, .5, .5);
-		glVertex3d(-a / 2, 0, -c / 2);
-		glVertex3d(-a / 2, b, -c / 2);
-
-		glColor3f(1, .5, .5);
-		glVertex3d(-a / 2, 0, +c / 2);
-		glVertex3d(-a / 2, b, +c / 2);
-	}
-	glEnd();
-
 	glBegin(GL_QUADS);
 	{
-		glColor3f(.5, .5, .5);
+		// front
+		glNormal3f(0.0, 0.0, 1.0);
+		glColor3f(rgb(76, 175, 80));
+		glVertex3d(-a / 2, 0, +c / 2);
+		glVertex3d(-a / 2, b, +c / 2);
+		glVertex3d(+a / 2, b, +c / 2);
+		glVertex3d(+a / 2, 0, +c / 2);
 
+		// right
+		glNormal3f(1.0, 0.0, 0.0);
+		glColor3f(rgb(156, 39, 176));
+		glVertex3d(+a / 2, 0, +c / 2);
+		glVertex3d(+a / 2, b, +c / 2);
+		glVertex3d(+a / 2, b, -c / 2);
+		glVertex3d(+a / 2, 0, -c / 2);
+
+		// back
+		glNormal3f(0.0, 0.0, -1.0);
+		glColor3f(rgb(255, 193, 7));
+		glVertex3d(+a / 2, 0, -c / 2);
+		glVertex3d(+a / 2, b, -c / 2);
+		glVertex3d(-a / 2, b, -c / 2);
+		glVertex3d(-a / 2, 0, -c / 2);
+
+		// left
+		glNormal3f(-1.0, 0.0, 0.0);
+		glColor3f(rgb(255, 235, 59));
+		glVertex3d(-a / 2, 0, -c / 2);
+		glVertex3d(-a / 2, b, -c / 2);
+		glVertex3d(-a / 2, b, +c / 2);
+		glVertex3d(-a / 2, 0, +c / 2);
+
+		// bottom
+		glNormal3f(0.0, -1.0, 0.0);
+		glColor3f(rgb(233, 30, 99));
 		glVertex3d(-a / 2, 0, -c / 2);
 		glVertex3d(+a / 2, 0, -c / 2);
 		glVertex3d(+a / 2, 0, +c / 2);
 		glVertex3d(-a / 2, 0, +c / 2);
 
+		// top
+		glNormal3f(0.0, 1.0, 0.0);
+		glColor3f(rgb(3, 169, 244));
 		glVertex3d(-a / 2, b, -c / 2);
 		glVertex3d(+a / 2, b, -c / 2);
 		glVertex3d(+a / 2, b, +c / 2);
@@ -164,9 +176,7 @@ void Renderer::drawRainbowCube(double a, double b, double c) {
 	glEnd();
 }
 
-
-void Renderer::DrawGrid(double dSize, int nSteps)
-{
+void Renderer::DrawGrid(double dSize, int nSteps) {
 	double stepSize = dSize / (double)nSteps;
 	double halfSize = dSize / 2.0;
 
@@ -185,8 +195,7 @@ void Renderer::DrawGrid(double dSize, int nSteps)
 	glEnd();
 }
 
-void Renderer::DrawAxes(double len)
-{
+void Renderer::DrawAxes(double len) {
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
 
@@ -204,64 +213,78 @@ void Renderer::DrawAxes(double len)
 	glEnd();
 }
 
-void Renderer::DrawCube(double a, double b, double c, double *color)
-{
-	float vert[24];
-	float col[24];
-	byte ind[24];
-
-	vert[0] = -a / 2.0; vert[1] = -b / 2.0; vert[2] = c / 2.0;
-	vert[3] = a / 2.0; vert[4] = -b / 2.0; vert[5] = c / 2.0;
-	vert[6] = a / 2.0; vert[7] = b / 2.0; vert[8] = c / 2.0;
-	vert[9] = -a / 2.0; vert[10] = b / 2.0; vert[11] = c / 2.0;
-	vert[12] = -a / 2.0; vert[13] = -b / 2.0; vert[14] = -c / 2.0;
-	vert[15] = a / 2.0; vert[16] = -b / 2.0; vert[17] = -c / 2.0;
-	vert[18] = a / 2.0; vert[19] = b / 2.0; vert[20] = -c / 2.0;
-	vert[21] = -a / 2.0; vert[22] = b / 2.0; vert[23] = -c / 2.0;
-
-	for (int i = 0; i < 24; i++) {
-		col[i] = color[i % 3];
-	}
-
-	ind[0] = 0; ind[1] = 1; ind[2] = 2; ind[3] = 3;
-	ind[4] = 1; ind[5] = 5; ind[6] = 6; ind[7] = 2;
-	ind[8] = 7; ind[9] = 6; ind[10] = 5; ind[11] = 4;
-	ind[12] = 0; ind[13] = 3; ind[14] = 7; ind[15] = 4;
-	ind[16] = 7; ind[17] = 3; ind[18] = 2; ind[19] = 6;
-	ind[20] = 0; ind[21] = 4; ind[22] = 5; ind[23] = 1;
-
-	glVertexPointer(3, GL_FLOAT, 0, vert);
-	glColorPointer(3, GL_FLOAT, 0, col);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
-	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, ind);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-}
-
-void Renderer::DrawWall(double size, double* color)
-{
-	glColor3dv(color);
+void Renderer::DrawCube(double a, double b, double c, double *color) {
 	glBegin(GL_QUADS);
 	{
-		glVertex2f(0, 0);
-		glVertex2f(0, size);
-		glVertex2f(size, size);
-		glVertex2f(size, 0);
+		glColor3d(rgb(color[0], color[1], color[2]));
+
+		// front
+		glNormal3f(0.0, 0.0, 1.0);
+		glVertex3d(-a / 2, -b / 2, +c / 2);
+		glVertex3d(+a / 2, -b / 2, +c / 2);
+		glVertex3d(+a / 2, +b / 2, +c / 2);
+		glVertex3d(-a / 2, +b / 2, +c / 2);
+
+		// right
+		glNormal3f(1.0, 0.0, 0.0);
+		glVertex3d(+a / 2, -b / 2, -c / 2);
+		glVertex3d(+a / 2, +b / 2, -c / 2);
+		glVertex3d(+a / 2, +b / 2, +c / 2);
+		glVertex3d(+a / 2, -b / 2, +c / 2);
+
+		// back
+		glNormal3f(0.0, 0.0, -1.0);
+		glVertex3d(-a / 2, -b / 2, -c / 2);
+		glVertex3d(-a / 2, +b / 2, -c / 2);
+		glVertex3d(+a / 2, +b / 2, -c / 2);
+		glVertex3d(+a / 2, -b / 2, -c / 2);
+
+		// left
+		glNormal3f(-1.0, 0.0, 0.0);
+		glVertex3d(-a / 2, -b / 2, -c / 2);
+		glVertex3d(-a / 2, -b / 2, +c / 2);
+		glVertex3d(-a / 2, +b / 2, +c / 2);
+		glVertex3d(-a / 2, +b / 2, -c / 2);
+
+		// bottom
+		glNormal3f(0.0, -1.0, 0.0);
+		glVertex3d(-a / 2, -b / 2, -c / 2);
+		glVertex3d(+a / 2, -b / 2, -c / 2);
+		glVertex3d(+a / 2, -b / 2, +c / 2);
+		glVertex3d(-a / 2, -b / 2, +c / 2);
+
+		// top
+		glNormal3f(0.0, 1.0, 0.0);
+		glVertex3d(-a / 2, +b / 2, -c / 2);
+		glVertex3d(-a / 2, +b / 2, +c / 2);
+		glVertex3d(+a / 2, +b / 2, +c / 2);
+		glVertex3d(+a / 2, +b / 2, -c / 2);
 	}
 	glEnd();
 }
 
-void Renderer::DrawWalls(double size)
-{
+void Renderer::DrawWall(double size, double* color) {
+	glColor3dv(color);
+	glBegin(GL_QUADS);
+	{
+		glNormal3d(0.0, 0.0, 1.0);
+		glVertex3d(0.0, 0.0, 0.0);
+		glVertex3d(size, 0.0, 0.0);
+		glVertex3d(size, size, 0.0);
+		glVertex3d(0.0, size, 0.0);
+	}
+	glEnd();
+}
+
+void Renderer::DrawWalls(double size) {
 	double leftWallColor[3] = { 0.8, 0.8, 0.8 };
 	double rightWallColor[3] = { 0.7, 0.7, 0.7 };
 	double floorColor[3] = { 0.5, 0.5, 0.5 };
 
+	glFrontFace(GL_CW);
 	this->DrawWall(size, rightWallColor);
 
+	glFrontFace(GL_CCW);
 	glPushMatrix();
 	glRotatef(-90.0, 0.0, 1.0, 0.0);
 	this->DrawWall(size, leftWallColor);
@@ -273,12 +296,10 @@ void Renderer::DrawWalls(double size)
 	glPopMatrix();
 }
 
-void Renderer::DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topHeight, double bottomHeight, double legSize)
-{
+void Renderer::DrawTable(double x, double y, double z, double width, double height, double depth, double offsetW, double offsetD, double topHeight, double bottomHeight, double legSize) {
 	double top[3] = { rgb(69, 90, 100) };
 	double bottom[3] = { rgb(255, 193, 7) };
 	double leg[3] = { rgb(121, 85, 72) };
-
 
 	glTranslated(x, y + height - topHeight / 2, z);
 	DrawCube(width, topHeight, depth, top);
@@ -304,8 +325,7 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	glPopMatrix();
 }
 
-void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double upperAngle, double headAngle)
-{
+void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double upperAngle, double headAngle) {
 	double lampColor[3] = { rgb(121, 134, 203) };
 	double headColor[3] = { rgb(33, 150, 243) };
 
@@ -344,16 +364,14 @@ void Renderer::DrawLamp(double x, double y, double z, double lowerAngle, double 
 	glPopMatrix();
 }
 
-void Renderer::DrawHemisphere(double* clipPlane, double radius)
-{
+void Renderer::DrawHemisphere(double* clipPlane, double radius) {
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, clipPlane);
 	glutSolidSphere(radius, 10, 10);
 	glDisable(GL_CLIP_PLANE0);
 }
 
-void Renderer::DrawLampHead()
-{
+void Renderer::DrawLampHead() {
 	float headRadius = 0.5, headWidth = 0.8, headHeight = 0.3;
 	double headColor[3] = { rgb(33, 150, 243) };
 	glColor3dv(headColor);
@@ -376,4 +394,38 @@ void Renderer::DrawLampHead()
 	DrawHemisphere(clipPlane, headRadius);
 
 	glPopMatrix();
+}
+
+void Renderer::prepareLighting() {
+	float lightAmbient[] = { .1, .2, .2, 1.0 };
+	float lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	float lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+
+	// Color and light
+	glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, lightSpecular);
+
+	// Slabljenje
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, .5);
+
+	// Usmeravanje izvora
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 7.0);
+
+	// Aktiviranje
+	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHTING);
+}
+
+void Renderer::prepareMaterials() {
+	this->wallMaterial.setAmbient(.3, .2, .1, 1.0);
+	this->wallMaterial.setShininess(.03);
+
+	this->woodMaterial.setAmbient(rgb(121, 85, 72), 1);
+	this->woodMaterial.setDiffuse(rgb(121, 85, 72), 1);
+
+	this->bulbMaterial.setEmission(1.0, 1.0, 1.0, 1.0);
+	this->bulbMaterial.setShininess(128);
+	this->bulbMaterial.setAmbient(.7, .7, .7, 1.0);
 }

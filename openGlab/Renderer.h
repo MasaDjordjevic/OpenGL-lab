@@ -1,14 +1,14 @@
 #pragma once
 #include <gl/GL.h>
 #include <gl\GLU.h>
+#include "GLMaterial.h"
 
-
-class Renderer
-{
+class Renderer {
 protected:
-	HGLRC m_hrc;	
+	HGLRC m_hrc;
 	double angleX, angleY, angleZ, zoom;
 	double angleLower, angleUpper, angleHead;
+	CGLMaterial woodMaterial, lampMaterial, wallMaterial, bulbMaterial;
 public:
 	Renderer();
 	~Renderer();
@@ -37,5 +37,7 @@ public:
 	void DrawLamp(double x, double y, double z, double lowerAngle, double upperAngle, double headAngle);
 	void DrawHemisphere(double * clipPlane, double radius);
 	void DrawLampHead();
+	void prepareLighting();
+	void prepareMaterials();
 };
 

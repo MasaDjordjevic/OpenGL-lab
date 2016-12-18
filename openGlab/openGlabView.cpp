@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CopenGlabView, CView)
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
 	ON_WM_KEYDOWN()
+	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // CopenGlabView construction/destruction
@@ -164,8 +165,7 @@ void CopenGlabView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 	double step = 5;
-	switch (nChar)
-	{
+	switch (nChar) {
 	case VK_UP:
 		renderer.ChangeViewAngleX(step);
 		break;
@@ -178,31 +178,39 @@ void CopenGlabView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case VK_RIGHT:
 		renderer.ChangeViewAngleY(-step);
 		break;
-	case VK_ADD:
-		renderer.ChangeViewZoom(-step);
-		break;
-	case VK_SUBTRACT:
-		renderer.ChangeViewZoom(step);
-		break;
-	case 'Q':
-		renderer.ChangeLampLowerAngle(-step);
-		break;		   
-	case 'A':		   
-		renderer.ChangeLampLowerAngle(step);
-		break;		   
-	case 'W':		   
-		renderer.ChangeLampUpperAngle(step);
-		break;		   
-	case 'S':		   
-		renderer.ChangeLampUpperAngle(-step);
-		break;		   
-	case 'E':		   
-		renderer.ChangeLampHeadAngle(step);
-		break;		   
-	case 'D':		   
-		renderer.ChangeLampHeadAngle(-step);
-		break;
+	//case VK_ADD:
+	//	renderer.ChangeViewZoom(-step);
+	//	break;
+	//case VK_SUBTRACT:
+	//	renderer.ChangeViewZoom(step);
+	//	break;
+	//case 'Q':
+	//	renderer.ChangeLampLowerAngle(-step);
+	//	break;		   
+	//case 'A':		   
+	//	renderer.ChangeLampLowerAngle(step);
+	//	break;		   
+	//case 'W':		   
+	//	renderer.ChangeLampUpperAngle(step);
+	//	break;		   
+	//case 'S':		   
+	//	renderer.ChangeLampUpperAngle(-step);
+	//	break;		   
+	//case 'E':		   
+	//	renderer.ChangeLampHeadAngle(step);
+	//	break;		   
+	//case 'D':		   
+	//	renderer.ChangeLampHeadAngle(-step);
+	//	break;
 	}
 
 	Invalidate();
+}
+
+
+BOOL CopenGlabView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
+	// TODO: Add your message handler code here and/or call default
+	renderer.ChangeViewZoom(-zDelta / 100);
+	Invalidate();
+	return CView::OnMouseWheel(nFlags, zDelta, pt);
 }
