@@ -211,86 +211,115 @@ void Renderer::DrawAxes(double len) {
 	glEnd();
 }
 
-void Renderer::DrawCube(double a, double b, double c, double *color) {
+void Renderer::DrawCube(double a, double b, double c, double *color, int numberOfTiles) {
 	glBegin(GL_QUADS);
 	{
 		glColor3d(rgb(color[0], color[1], color[2]));
 
 		// front
-		glNormal3f(0.0, 0.0, 1.0);
+		glNormal3d(0.0, 0.0, 1.0);
 		glVertex3d(-a / 2, -b / 2, +c / 2);
 		glVertex3d(+a / 2, -b / 2, +c / 2);
 		glVertex3d(+a / 2, +b / 2, +c / 2);
 		glVertex3d(-a / 2, +b / 2, +c / 2);
 
 		// right
-		glNormal3f(1.0, 0.0, 0.0);
+		glNormal3d(1.0, 0.0, 0.0);
 		glVertex3d(+a / 2, -b / 2, -c / 2);
 		glVertex3d(+a / 2, +b / 2, -c / 2);
 		glVertex3d(+a / 2, +b / 2, +c / 2);
 		glVertex3d(+a / 2, -b / 2, +c / 2);
 
 		// back
-		glNormal3f(0.0, 0.0, -1.0);
+		glNormal3d(0.0, 0.0, -1.0);
 		glVertex3d(-a / 2, -b / 2, -c / 2);
 		glVertex3d(-a / 2, +b / 2, -c / 2);
 		glVertex3d(+a / 2, +b / 2, -c / 2);
 		glVertex3d(+a / 2, -b / 2, -c / 2);
 
 		// left
-		glNormal3f(-1.0, 0.0, 0.0);
+		glNormal3d(-1.0, 0.0, 0.0);
 		glVertex3d(-a / 2, -b / 2, -c / 2);
 		glVertex3d(-a / 2, -b / 2, +c / 2);
 		glVertex3d(-a / 2, +b / 2, +c / 2);
 		glVertex3d(-a / 2, +b / 2, -c / 2);
 
 		// bottom
-		glNormal3f(0.0, -1.0, 0.0);
+		glNormal3d(0.0, -1.0, 0.0);
 		glVertex3d(-a / 2, -b / 2, -c / 2);
 		glVertex3d(+a / 2, -b / 2, -c / 2);
 		glVertex3d(+a / 2, -b / 2, +c / 2);
 		glVertex3d(-a / 2, -b / 2, +c / 2);
 
 		// top
-		glNormal3f(0.0, 1.0, 0.0);
-		glVertex3d(-a / 2, +b / 2, -c / 2);
-		glVertex3d(-a / 2, +b / 2, +c / 2);
-		glVertex3d(+a / 2, +b / 2, +c / 2);
-		glVertex3d(+a / 2, +b / 2, -c / 2);
+		if (numberOfTiles == 0) {
+			glNormal3d(0.0, 1.0, 0.0);
+			glVertex3d(-a / 2, +b / 2, -c / 2);
+			glVertex3d(-a / 2, +b / 2, +c / 2);
+			glVertex3d(+a / 2, +b / 2, +c / 2);
+			glVertex3d(+a / 2, +b / 2, -c / 2);
+		} else {
+			double xStep = a / numberOfTiles;
+			double zStep = c / numberOfTiles;
+			for (double x = -a / 2; x < a / 2; x += xStep) {
+				for (double z = -c / 2; z < c / 2; z += zStep) {
+					glNormal3d(0.0, 1.0, 0.0);
+					glVertex3d(x, b / 2, z);
+					glVertex3d(x + xStep, b / 2, z);
+					glVertex3d(x + xStep, b / 2, z + zStep);
+					glVertex3d(x, b / 2, z + zStep);
+				}
+			}
+		}
 	}
 	glEnd();
 }
 
-void Renderer::DrawWall(double size, double* color) {
+void Renderer::DrawWall(double size, double* color, int numberOfTiles) {
 	glColor3dv(color);
-	glBegin(GL_QUADS);
-	{
-		glNormal3d(0.0, 0.0, 1.0);
-		glVertex3d(0.0, 0.0, 0.0);
-		glVertex3d(size, 0.0, 0.0);
-		glVertex3d(size, size, 0.0);
-		glVertex3d(0.0, size, 0.0);
+	if (numberOfTiles == 0) {
+		glBegin(GL_QUADS);
+		{
+			glNormal3d(0.0, 0.0, 1.0);
+			glVertex2d(0.0, 0.0);
+			glVertex2d(size, 0.0);
+			glVertex2d(size, size);
+			glVertex2d(0.0, size);
+		}
+		glEnd();
+	} else {
+		glBegin(GL_QUADS);
+		{
+			double step = size / numberOfTiles;
+			for (double x = 0; x < size; x += step) {
+				for (double y = 0; y < size; y += step) {
+					glNormal3d(0.0, 0.0, 1.0);
+					glVertex2d(x, y);
+					glVertex2d(x + step, y);
+					glVertex2d(x + step, y + step);
+					glVertex2d(x, y + step);
+				}
+			}
+		}
+		glEnd();
 	}
-	glEnd();
 }
 
 void Renderer::DrawWalls(double size) {
-	double leftWallColor[3] = { 0.8, 0.8, 0.8 };
-	double rightWallColor[3] = { 0.7, 0.7, 0.7 };
-	double floorColor[3] = { 0.5, 0.5, 0.5 };
+	double wallColor[3] = { 0.8, 0.8, 0.8 };
 
 	this->wallMaterial.select();
 
-	this->DrawWall(size, rightWallColor);
+	this->DrawWall(size, wallColor, 400);
 
 	glPushMatrix();
 	glRotatef(-90.0, 0.0, 1.0, 0.0);
-	this->DrawWall(size, leftWallColor);
+	this->DrawWall(size, wallColor, 400);
 	glPopMatrix();
 
 	glPushMatrix();
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	this->DrawWall(size, floorColor);
+	this->DrawWall(size, wallColor, 400);
 	glPopMatrix();
 }
 
@@ -302,13 +331,16 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	this->woodMaterial.select();
 
 	glTranslated(x, y + height - topHeight / 2, z);
-	DrawCube(width, topHeight, depth, top);
+	// top
+	DrawCube(width, topHeight, depth, top, 200);
 	glPushMatrix();
 	glTranslated(0, -topHeight / 2 - bottomHeight / 2, 0);
+	// bottom
 	DrawCube(width - offsetW, bottomHeight, depth - offsetD, bottom);
 	glPopMatrix();
 
 	double legHeight = height - topHeight;
+	// legs
 	glPushMatrix();
 	glTranslated(-(width - offsetW) / 2, -topHeight / 2 - legHeight / 2, -(depth - offsetD) / 2);
 	DrawCube(legSize, legHeight, legSize, leg);
