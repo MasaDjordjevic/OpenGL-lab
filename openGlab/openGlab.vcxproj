@@ -120,6 +120,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -191,12 +193,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DImage.h" />
+    <ClInclude Include="GL.H" />
+    <ClInclude Include="GLAUX.H" />
     <ClInclude Include="GLMaterial.h" />
     <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="GL\GL.H" />
-    <ClInclude Include="GL\GLAUX.H" />
-    <ClInclude Include="GL\GLU.H" />
-    <ClInclude Include="GL\glut.h" />
+    <ClInclude Include="GLU.H" />
+    <ClInclude Include="glut.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="openGlab.h" />
     <ClInclude Include="openGlabDoc.h" />

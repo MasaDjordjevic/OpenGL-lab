@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GLMaterial.h"
-#include <gl\GL.h>
+#include "GL.h"
 
 
 CGLMaterial::CGLMaterial() {

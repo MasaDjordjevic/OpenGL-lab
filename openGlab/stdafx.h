@@ -34,12 +34,6 @@
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
 
-#pragma comment (lib, "OpenGL32.lib")
-#pragma comment (lib, "glu32.lib")
-#pragma comment(lib, "GL\\glut32.lib")
-
-
-
 
 
 #ifdef _UNICODE

@@ -1,5 +1,5 @@
 #pragma once
-#include <gl\GL.h>
+#include "GL.H"
 #include "DImage.h"
 
 class CGLTexture {

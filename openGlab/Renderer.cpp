@@ -1,9 +1,13 @@
+#pragma once
 #include "stdafx.h"
 #include "Renderer.h"
-#include "GL\gl.h"
-#include "GL\glu.h"
-#include "GL\glaux.h"
-#include "GL\glut.h"
+
+#pragma comment (lib, "OpenGL32.lib")
+#pragma comment (lib, "GLU32.LIB")
+#pragma comment(lib, "glut32.lib")
+
+
+
 
 #define rgb(r, g, b) r/255.0, g/255.0, b/255.0
 
@@ -215,7 +219,7 @@ void Renderer::DrawAxes(double len) {
 	glEnd();
 }
 
-void Renderer::DrawCube(double a, double b, double c, int numberOfTiles, CGLTexture* texture) {
+void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 	glBegin(GL_QUADS);
 	{
 		// front
@@ -263,16 +267,17 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles, CGLText
 		} else {
 			double xStep = a / numberOfTiles;
 			double zStep = c / numberOfTiles;
-			for (double x = -a / 2; x < a / 2; x += xStep) {
-				for (double z = -c / 2; z < c / 2; z += zStep) {
+			double textureStep = 1.0 / numberOfTiles;
+			for (double x = -a / 2, s = 0; x < a / 2; x += xStep, s += textureStep) {
+				for (double z = -c / 2, s = 0; z < c / 2; z += zStep, s += textureStep) {
 					glNormal3d(0.0, 1.0, 0.0);
-					if (texture) glTexCoord2d(0, 0);
+					glTexCoord2d(s, s);
 					glVertex3d(x, b / 2, z);
-					if (texture) glTexCoord2d(1, 0);
+					glTexCoord2d(s + textureStep, s);
 					glVertex3d(x + xStep, b / 2, z);
-					if (texture) glTexCoord2d(1, 1);
+					glTexCoord2d(s + textureStep, s + textureStep);
 					glVertex3d(x + xStep, b / 2, z + zStep);
-					if (texture) glTexCoord2d(0, 1);
+					glTexCoord2d(s, s + textureStep);
 					glVertex3d(x, b / 2, z + zStep);
 				}
 			}
@@ -281,18 +286,18 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles, CGLText
 	glEnd();
 }
 
-void Renderer::DrawWall(double size, int numberOfTiles, CGLTexture* texture) {
+void Renderer::DrawWall(double size, int numberOfTiles) {
 	if (numberOfTiles == 0) {
 		glBegin(GL_QUADS);
 		{
 			glNormal3d(0.0, 0.0, 1.0);
-			if (texture) glTexCoord2d(0, 0);
+			glTexCoord2d(0, 0);
 			glVertex2d(0.0, 0.0);
-			if (texture) glTexCoord2d(1, 0);
+			glTexCoord2d(1, 0);
 			glVertex2d(size, 0.0);
-			if (texture) glTexCoord2d(1, 1);
+			glTexCoord2d(1, 1);
 			glVertex2d(size, size);
-			if (texture) glTexCoord2d(0, 1);
+			glTexCoord2d(0, 1);
 			glVertex2d(0.0, size);
 		}
 		glEnd();
@@ -300,16 +305,17 @@ void Renderer::DrawWall(double size, int numberOfTiles, CGLTexture* texture) {
 		glBegin(GL_QUADS);
 		{
 			double step = size / numberOfTiles;
-			for (double x = 0; x < size; x += step) {
-				for (double y = 0; y < size; y += step) {
+			double stepTexture = 1.0 / numberOfTiles;
+			for (double x = 0, s = 0; x < size; x += step, s += stepTexture) {
+				for (double y = 0, s = 0; y < size; y += step, s += stepTexture) {
 					glNormal3d(0.0, 0.0, 1.0);
-					if (texture) glTexCoord2d(0, 0);
+					glTexCoord2d(s, s);
 					glVertex2d(x, y);
-					if (texture) glTexCoord2d(1, 0);
+					glTexCoord2d(s + stepTexture, s);
 					glVertex2d(x + step, y);
-					if (texture) glTexCoord2d(1, 1);
+					glTexCoord2d(s + stepTexture, s + stepTexture);
 					glVertex2d(x + step, y + step);
-					if (texture) glTexCoord2d(0, 1);
+					glTexCoord2d(s, s + stepTexture);
 					glVertex2d(x, y + step);
 				}
 			}
@@ -320,6 +326,7 @@ void Renderer::DrawWall(double size, int numberOfTiles, CGLTexture* texture) {
 
 void Renderer::DrawWalls(double size) {
 	glEnable(GL_TEXTURE_2D);
+	//this->wallTexture.select();
 
 	// zid napred
 	this->wallTexture.select();
@@ -352,7 +359,7 @@ void Renderer::DrawTable(double x, double y, double z, double width, double heig
 	this->woodMaterial.select();
 	glEnable(GL_TEXTURE_2D);
 	this->woodTexture.select();
-	DrawCube(width, topHeight, depth, 200);
+	DrawCube(width, topHeight, depth, 2);
 	glDisable(GL_TEXTURE_2D);
 
 	// bottom

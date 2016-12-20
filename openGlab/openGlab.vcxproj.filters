@@ -48,19 +48,19 @@
     <ClInclude Include="GLTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GL\GL.H">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GL\GLAUX.H">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GL\GLU.H">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GL\glut.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLAUX.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLU.H">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
