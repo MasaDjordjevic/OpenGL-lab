@@ -63,9 +63,9 @@ void Renderer::PrepareScene(CDC * pDC) {
 	glEnable(GL_DEPTH_TEST);
 
 	CGLTexture::PrepareTexturing(true);
-	this->carpetTexture.loadFromFile(L"ASHSEN512.bmp");
+	this->carpetTexture.loadFromFile(L"PAT39.bmp");
 	this->wallTexture.loadFromFile(L"WALL512.bmp");
-	this->woodTexture.loadFromFile(L"PAT39.bmp");
+	this->woodTexture.loadFromFile(L"ASHSEN512.bmp");
 
 	prepareLighting();
 	prepareMaterials();
@@ -94,7 +94,8 @@ void Renderer::Reshape(CDC * pDC, int w, int h) {
 	glLoadIdentity();
 	gluPerspective(40, (double)w / (double)h, 1, 100);
 	glMatrixMode(GL_MODELVIEW);
-
+	//vlado????
+	this->DrawScene(pDC);
 	//-----------------------------
 	wglMakeCurrent(NULL, NULL);
 }
@@ -268,16 +269,16 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 			double xStep = a / numberOfTiles;
 			double zStep = c / numberOfTiles;
 			double textureStep = 1.0 / numberOfTiles;
-			for (double x = -a / 2, s = 0; x < a / 2; x += xStep, s += textureStep) {
-				for (double z = -c / 2, s = 0; z < c / 2; z += zStep, s += textureStep) {
+			for (double x = -a / 2, s1 = 0; x < a / 2; x += xStep, s1 += textureStep) {
+				for (double z = -c / 2, s2 = 0; z < c / 2; z += zStep, s2 += textureStep) {
 					glNormal3d(0.0, 1.0, 0.0);
-					glTexCoord2d(s, s);
+					glTexCoord2d(s1, s2);
 					glVertex3d(x, b / 2, z);
-					glTexCoord2d(s + textureStep, s);
+					glTexCoord2d(s1 + textureStep, s2);
 					glVertex3d(x + xStep, b / 2, z);
-					glTexCoord2d(s + textureStep, s + textureStep);
+					glTexCoord2d(s1 + textureStep, s2 + textureStep);
 					glVertex3d(x + xStep, b / 2, z + zStep);
-					glTexCoord2d(s, s + textureStep);
+					glTexCoord2d(s1, s2 + textureStep);
 					glVertex3d(x, b / 2, z + zStep);
 				}
 			}
@@ -286,7 +287,7 @@ void Renderer::DrawCube(double a, double b, double c, int numberOfTiles) {
 	glEnd();
 }
 
-void Renderer::DrawWall(double size, int numberOfTiles) {
+void Renderer::DrawWall(double size, int numberOfTiles, int numberOfTextures) {
 	if (numberOfTiles == 0) {
 		glBegin(GL_QUADS);
 		{
@@ -305,17 +306,17 @@ void Renderer::DrawWall(double size, int numberOfTiles) {
 		glBegin(GL_QUADS);
 		{
 			double step = size / numberOfTiles;
-			double stepTexture = 1.0 / numberOfTiles;
-			for (double x = 0, s = 0; x < size; x += step, s += stepTexture) {
-				for (double y = 0, s = 0; y < size; y += step, s += stepTexture) {
+			double stepTexture = 1.0 * numberOfTextures / numberOfTiles;
+			for (double x = 0, s1 = 0; x < size; x += step, s1 += stepTexture) {
+				for (double y = 0, s2 = 0; y < size; y += step, s2 += stepTexture) {
 					glNormal3d(0.0, 0.0, 1.0);
-					glTexCoord2d(s, s);
+					glTexCoord2d(s1, s2);
 					glVertex2d(x, y);
-					glTexCoord2d(s + stepTexture, s);
+					glTexCoord2d(s1 + stepTexture, s2);
 					glVertex2d(x + step, y);
-					glTexCoord2d(s + stepTexture, s + stepTexture);
+					glTexCoord2d(s1 + stepTexture, s2 + stepTexture);
 					glVertex2d(x + step, y + step);
-					glTexCoord2d(s, s + stepTexture);
+					glTexCoord2d(s1, s2 + stepTexture);
 					glVertex2d(x, y + step);
 				}
 			}
@@ -341,11 +342,11 @@ void Renderer::DrawWalls(double size) {
 	this->DrawWall(size, 200);
 	glPopMatrix();
 
-	// zid dole (poznat kao patos)
+	// zid dole 
 	glPushMatrix();
 	this->carpetTexture.select();
 	glRotatef(90.0, 1.0, 0.0, 0.0);
-	this->DrawWall(size, 200);
+	this->DrawWall(size, 200, 8);
 	glPopMatrix();
 	
 	glFrontFace(GL_CCW);
@@ -463,6 +464,7 @@ void Renderer::DrawLampHead() {
 }
 
 void Renderer::prepareLighting() {
+	glEnable(GL_LIGHTING);
 	// Global lighting
 	GLfloat lightModelAmbient[] = { .2, .2, .2, 1.0 };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
@@ -484,7 +486,7 @@ void Renderer::prepareLighting() {
 	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, .5);
 
 	// Usmeravanje izvora
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 90.0);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0);
 	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 7.0);
 
 	
@@ -503,9 +505,10 @@ void Renderer::prepareLighting() {
 	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, .25);
 
 	// Aktiviranje
+
+	
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHT2);
-	glEnable(GL_LIGHTING);
 }
 
 void Renderer::prepareMaterials() {
